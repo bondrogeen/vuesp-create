@@ -1,10 +1,10 @@
-import { readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { addCards, removeCards } from './dashboard.js';
 import { buildManifest, writeManifest } from './manifest.js';
 import { getBoardInfo, listBoards, updatePlatformio } from './platformio.js';
-import { buildReadme, updateIndexHtml, updatePackageJson, updatePackageLock } from './project.js';
+import { buildDocs, buildReadme, updateIndexHtml, updatePackageJson, updatePackageLock } from './project.js';
 
 const read = (path) => readFile(path, 'utf8');
 const write = (path, value) => writeFile(path, value, 'utf8');
@@ -64,7 +64,16 @@ export const scaffold = async (
       name,
       summary,
       description,
-      board,
+    })
+  );
+
+  const docsPath = join(dir, 'DOCS.md');
+  await write(
+    docsPath,
+    buildDocs({
+      name,
+      summary,
+      description,
       presetLabel: preset?.label,
       presetNote: preset?.note,
     })
@@ -105,11 +114,28 @@ export const scaffold = async (
   // generated project.
   await rm(join(dir, 'AGENTS.md'), { force: true });
 
-  // Template documentation and community files describe the Vuesp project
-  // itself, not the generated device. Keep only the project README.
-  for (const file of ['docs', 'DEVELOPMENT.md', 'CONTRIBUTING.md', 'SECURITY.md']) {
-    await rm(join(dir, file), { recursive: true, force: true });
+  // Template documentation, screenshots and build artifacts describe the
+  // Vuesp project itself, not the generated device.
+  for (const path of ['docs', 'DEVELOPMENT.md', 'CONTRIBUTING.md', 'SECURITY.md', 'github', 'firmware', 'build', 'demo-dist', '.pio']) {
+    await rm(join(dir, path), { recursive: true, force: true });
   }
+
+  // Keep the conventional screenshot directory for the project owner.
+  await mkdir(join(dir, 'github/images/screen'), { recursive: true });
+  await writeFile(join(dir, 'github/images/screen/.gitkeep'), '', 'utf8');
+  await writeFile(
+    join(dir, 'github/images/README.md'),
+    [
+      '# Project images',
+      '',
+      '- `screen/` — project screenshots. The Vuesp catalog builds the gallery from this directory.',
+      '- `cover.png` — optional cover image. Without it the catalog uses the default Vuesp cover template.',
+      '',
+      'Recommended screenshot size: 1440×900 or 1600×1000, PNG or WebP.',
+      '',
+    ].join('\n'),
+    'utf8'
+  );
 
   return { boards, boardInfo, manifest };
 };

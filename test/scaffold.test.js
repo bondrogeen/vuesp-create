@@ -85,6 +85,7 @@ test('scaffold applies the board, manifest and preset', async () => {
     const dashboard = JSON.parse(await readFile(join(root, 'vue/json/dashboard.json'), 'utf8'));
     const defaults = JSON.parse(await readFile(join(root, 'vue/public/default.json'), 'utf8'));
     const readme = await readFile(join(root, 'README.md'), 'utf8');
+    const docs = await readFile(join(root, 'DOCS.md'), 'utf8');
 
     assert.deepEqual(result.boards, ['esp8266', 'esp32']);
     assert.equal(pkg.name, 'vuesp.led');
@@ -102,16 +103,21 @@ test('scaffold applies the board, manifest and preset', async () => {
     assert.equal(dashboard.find((card) => card.id === 'ports.12').name, 'Light 1');
     assert.deepEqual(defaults.dashboard, dashboard);
     assert.match(readme, /^# vuesp\.led/m);
-    assert.match(readme, /\[Vuesp\]\(https:\/\/github\.com\/bondrogeen\/vuesp\)/);
-    assert.match(readme, /\*\*Preset:\*\* LED/);
-    assert.match(readme, /pio run -e esp32/);
+    assert.match(readme, /## Version history/);
+    assert.match(readme, /\[Detailed documentation\]\(\.\/DOCS\.md\)/);
     assert.doesNotMatch(readme, /Vuesp architecture/);
+    assert.match(docs, /^# vuesp\.led — documentation/m);
+    assert.match(docs, /## Overview/);
+    assert.match(docs, /\*\*Preset:\*\* LED/);
     assert.equal(await exists(join(root, 'vue/.env')), false);
     assert.equal(await exists(join(root, 'AGENTS.md')), false);
     assert.equal(await exists(join(root, 'docs')), false);
     assert.equal(await exists(join(root, 'DEVELOPMENT.md')), false);
     assert.equal(await exists(join(root, 'CONTRIBUTING.md')), false);
     assert.equal(await exists(join(root, 'SECURITY.md')), false);
+    assert.equal(await exists(join(root, 'firmware')), false);
+    assert.equal(await exists(join(root, 'demo-dist')), false);
+    assert.equal(await exists(join(root, 'github/images/screen/.gitkeep')), true);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

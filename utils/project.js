@@ -113,16 +113,48 @@ export const updatePackageLock = (text, { name, version = '0.1.0' }) => {
  * }} options
  * @returns {string}
  */
-export const buildReadme = ({ name, summary, description, board, presetLabel, presetNote }) => {
+export const buildReadme = ({ name, summary, description }) => {
   const about = (description || summary || '').trim() || 'Describe your device and its features here.';
-  const lines = [
+  return [
     `# ${name}`,
     '',
-    '> A project built with [Vuesp](https://github.com/bondrogeen/vuesp) — a local web interface for ESP32, ESP32-C3 and ESP8266.',
-    '',
-    '## About',
-    '',
     about,
+    '',
+    '## Version history',
+    '',
+    '- 0.1.0 — initial version.',
+    '',
+    '## Documentation',
+    '',
+    '- [Detailed documentation](./DOCS.md)',
+    '- [Vuesp documentation](https://docs.vuesp.ru)',
+    '- [vuesp-create](https://github.com/bondrogeen/vuesp-create)',
+    '',
+  ].join('\n');
+};
+
+/**
+ * Builds a minimal DOCS.md skeleton for a generated project.
+ *
+ * @param {{
+ *   name: string,
+ *   summary?: string,
+ *   description?: string,
+ *   presetLabel?: string,
+ *   presetNote?: string,
+ * }} options
+ * @returns {string}
+ */
+export const buildDocs = ({ name, summary, description, presetLabel, presetNote }) => {
+  const overview = (description || summary || '').trim() || 'Describe your device and its features here.';
+  const lines = [
+    `# ${name} — documentation`,
+    '',
+    'Replace this template with the details of your device.',
+    '',
+    '## Overview',
+    '',
+    overview,
     '',
   ];
 
@@ -131,51 +163,27 @@ export const buildReadme = ({ name, summary, description, board, presetLabel, pr
   }
 
   lines.push(
-    '## Quick start',
+    '## Features',
     '',
-    '### Web interface',
+    '- Add the main features of your device here.',
     '',
-    '```bash',
-    'cd vue',
-    'npm install',
-    'cp .env.example .env',
-    'npm run dev',
-    '```',
+    '## Web interface',
     '',
-    'Set `VITE_IP` in `vue/.env` to the device IP and open <http://localhost:3000>.',
+    'Describe the screens, dashboard cards and controls.',
     '',
-    '### Firmware',
+    '## API',
     '',
-    '```bash',
-    `pio run -e ${board}`,
-    '```',
+    'Describe the HTTP endpoints, WebSocket messages and device commands.',
     '',
-    '## Project structure',
+    '## Files',
     '',
-    '```text',
-    'src/              # firmware sources',
-    'vue/              # Vue 3 + Vite web interface',
-    'platformio.ini    # PlatformIO configuration',
-    '.vuesp.json       # project manifest for the Vuesp catalog',
-    '```',
-    '',
-    '## Publish to the Vuesp catalog',
-    '',
-    '1. Push the project to a public GitHub repository.',
-    '2. Open <https://lk.vuesp.ru/projects/new>, paste the repository URL and press **Заполнить**.',
-    '3. Submit the project for moderation.',
+    'Describe the configuration and user files stored on the device.',
     '',
     '## Links',
     '',
-    '- [Vuesp](https://github.com/bondrogeen/vuesp) — the parent project',
-    '- [vuesp-create](https://github.com/bondrogeen/vuesp-create) — project generator',
+    '- [Vuesp](https://github.com/bondrogeen/vuesp)',
     '- [Documentation](https://docs.vuesp.ru)',
-    '- [Project catalog](https://vuesp.ru/projects)',
     '',
-    '## License',
-    '',
-    'MIT',
-    ''
   );
 
   return lines.join('\n');

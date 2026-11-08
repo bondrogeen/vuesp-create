@@ -1,6 +1,6 @@
 {
   "name": "vuesp-create",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Create a new Vuesp project from the official template",
   "type": "module",
   "main": "./utils/index.js",
