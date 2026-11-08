@@ -2,7 +2,7 @@
 
 How to test `vuesp-create` on your machine before pushing or publishing.
 
-The examples below use `/home/user/github/pets/vuesp-create`. Replace it with your
+The examples below use `/path/to/vuesp-create`. Replace it with your
 local path if it is different.
 
 ## Requirements
@@ -13,7 +13,7 @@ local path if it is different.
 - Optional: GitHub CLI (`gh`) for `--github`
 
 ```bash
-cd /home/user/github/pets/vuesp-create
+cd /path/to/vuesp-create
 node --version   # must be >= 22.13
 npm ci
 ```
@@ -27,8 +27,8 @@ npm test
 Expected:
 
 ```text
-ℹ tests 40
-ℹ pass 40
+ℹ tests 41
+ℹ pass 41
 ℹ fail 0
 ```
 
@@ -52,8 +52,8 @@ network access:
 cd /tmp
 rm -rf vuesp.local-test
 
-node /home/user/github/pets/vuesp-create/bin/cli.js vuesp.local-test \
-  --template /home/user/github/pets/vuesp \
+node /path/to/vuesp-create/bin/cli.js vuesp.local-test \
+  --template /path/to/vuesp \
   --preset bms \
   --no-install \
   --no-git \
@@ -76,6 +76,8 @@ Expected:
 - `device_name` contains the project name;
 - `.vuesp.json` exists with `preset: "bms"`;
 - `vue/package.json` has version `0.1.0` and `private: true`;
+- `README.md` is a clean project template with a link to Vuesp;
+- `docs/`, `DEVELOPMENT.md`, `CONTRIBUTING.md` and `SECURITY.md` are removed;
 - `vue/.env` and `AGENTS.md` are removed.
 
 ## 4. Create a project from GitHub
@@ -86,7 +88,7 @@ This uses the real template and the default branch:
 cd /tmp
 rm -rf vuesp.github-test
 
-node /home/user/github/pets/vuesp-create/bin/cli.js vuesp.github-test \
+node /path/to/vuesp-create/bin/cli.js vuesp.github-test \
   --preset camera \
   --no-install \
   --no-git \
@@ -100,8 +102,8 @@ the new `vuesp` commit is pushed, use `--template ../vuesp` instead.
 
 ```bash
 cd /tmp
-node /home/user/github/pets/vuesp-create/bin/cli.js vuesp.interactive \
-  --template /home/user/github/pets/vuesp
+node /path/to/vuesp-create/bin/cli.js vuesp.interactive \
+  --template /path/to/vuesp
 ```
 
 The CLI asks for:
@@ -119,21 +121,21 @@ Without `--yes`, `--no-install` and `--no-git` are not implied.
 ```bash
 cd /tmp/vuesp.local-test
 
-node /home/user/github/pets/vuesp-create/bin/cli.js add dashboard-card \
+node /path/to/vuesp-create/bin/cli.js add dashboard-card \
   --type button --gpio 2 --name Relay --yes
 
-node /home/user/github/pets/vuesp-create/bin/cli.js add dashboard-card \
+node /path/to/vuesp-create/bin/cli.js add dashboard-card \
   --type info --id device.power --name Power \
   --path device.power --unit W --yes
 
-node /home/user/github/pets/vuesp-create/bin/cli.js add sensor \
+node /path/to/vuesp-create/bin/cli.js add sensor \
   --kind temperature --path device.temperature \
   --name Temperature --yes
 
-node /home/user/github/pets/vuesp-create/bin/cli.js add sensor \
+node /path/to/vuesp-create/bin/cli.js add sensor \
   --kind analog --gpio 34 --name "Analog 34" --unit '%' --yes
 
-node /home/user/github/pets/vuesp-create/bin/cli.js add sensor \
+node /path/to/vuesp-create/bin/cli.js add sensor \
   --kind digital --gpio 2 --name Door --yes
 ```
 
@@ -146,17 +148,17 @@ Expected:
 Interactive version:
 
 ```bash
-node /home/user/github/pets/vuesp-create/bin/cli.js add dashboard-card
-node /home/user/github/pets/vuesp-create/bin/cli.js add sensor
+node /path/to/vuesp-create/bin/cli.js add dashboard-card
+node /path/to/vuesp-create/bin/cli.js add sensor
 ```
 
 ## 7. Check updates
 
 ```bash
 cd /tmp/vuesp.local-test
-node /home/user/github/pets/vuesp-create/bin/cli.js check
-node /home/user/github/pets/vuesp-create/bin/cli.js check --json
-node /home/user/github/pets/vuesp-create/bin/cli.js check --strict
+node /path/to/vuesp-create/bin/cli.js check
+node /path/to/vuesp-create/bin/cli.js check --json
+node /path/to/vuesp-create/bin/cli.js check --strict
 ```
 
 Notes:
@@ -180,8 +182,8 @@ Create a private test repository:
 
 ```bash
 cd /tmp
-node /home/user/github/pets/vuesp-create/bin/cli.js vuesp.gh-test \
-  --template /home/user/github/pets/vuesp \
+node /path/to/vuesp-create/bin/cli.js vuesp.gh-test \
+  --template /path/to/vuesp \
   --github --private --yes
 ```
 
@@ -223,7 +225,7 @@ npm run build-web
 ## 10. Test packaging and global install
 
 ```bash
-cd /home/user/github/pets/vuesp-create
+cd /path/to/vuesp-create
 npm pack
 rm -rf /tmp/vuesp-cli
 npm install -g --prefix /tmp/vuesp-cli ./vuesp-create-1.0.0.tgz

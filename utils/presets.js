@@ -12,8 +12,6 @@ export const PRESETS = {
     tags: ['bms', 'battery', 'esp32-c3'],
     summary: 'Battery monitoring and management with a local web interface',
     description: [
-      '## Battery management',
-      '',
       'A Vuesp project for a battery management system: cell voltages, current, power,',
       'temperature and protection states.',
       '',
@@ -35,8 +33,6 @@ export const PRESETS = {
     tags: ['camera', 'video', 'esp32'],
     summary: 'Camera device with a local web interface',
     description: [
-      '## Camera device',
-      '',
       'A Vuesp project for a camera or video device with a local web interface.',
       '',
       'Use the camera module of your firmware or connect the device to `vuesp-hub` for',
@@ -52,8 +48,6 @@ export const PRESETS = {
     tags: ['led', 'light', 'pwm', 'esp32'],
     summary: 'LED lighting control with PWM and a local web interface',
     description: [
-      '## LED lighting',
-      '',
       'A Vuesp project for LED strips, lamps or matrix panels.',
       '',
       'The starter dashboard contains GPIO 12 and 13 buttons and a PWM dimmer on GPIO 14.',

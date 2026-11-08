@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { addCards, removeCards } from './dashboard.js';
 import { buildManifest, writeManifest } from './manifest.js';
 import { getBoardInfo, listBoards, updatePlatformio } from './platformio.js';
-import { updateIndexHtml, updatePackageJson, updatePackageLock, updateReadme } from './project.js';
+import { buildReadme, updateIndexHtml, updatePackageJson, updatePackageLock } from './project.js';
 
 const read = (path) => readFile(path, 'utf8');
 const write = (path, value) => writeFile(path, value, 'utf8');
@@ -58,14 +58,17 @@ export const scaffold = async (
   }
 
   const readmePath = join(dir, 'README.md');
-  let readme = updateReadme(await read(readmePath), { name });
-  if (preset?.note) {
-    const section = `## Preset: ${preset.label}\n\n${preset.note}\n`;
-    readme = readme.includes('## License')
-      ? readme.replace('## License', `${section}\n## License`)
-      : `${readme.replace(/\s+$/, '')}\n\n${section}`;
-  }
-  await write(readmePath, readme);
+  await write(
+    readmePath,
+    buildReadme({
+      name,
+      summary,
+      description,
+      board,
+      presetLabel: preset?.label,
+      presetNote: preset?.note,
+    })
+  );
 
   const indexPath = join(dir, 'vue/index.html');
   await write(indexPath, updateIndexHtml(await read(indexPath), { name, description: summary }));
@@ -101,6 +104,12 @@ export const scaffold = async (
   // AGENTS.md is specific to the template repository and is not useful in a
   // generated project.
   await rm(join(dir, 'AGENTS.md'), { force: true });
+
+  // Template documentation and community files describe the Vuesp project
+  // itself, not the generated device. Keep only the project README.
+  for (const file of ['docs', 'DEVELOPMENT.md', 'CONTRIBUTING.md', 'SECURITY.md']) {
+    await rm(join(dir, file), { recursive: true, force: true });
+  }
 
   return { boards, boardInfo, manifest };
 };

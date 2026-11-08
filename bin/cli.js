@@ -164,7 +164,7 @@ const copyLocalTemplate = async (source, target) => {
   }
 
   const excluded = new Set(['node_modules', '.git', '.pio']);
-  const excludedRoots = new Set(['build', 'firmware']);
+  const excludedRoots = new Set(['build', 'firmware', 'docs']);
   const excludedEnv = new Set(['.env', '.env.local', '.env.screen.local']);
 
   await cp(root, absoluteTarget, {

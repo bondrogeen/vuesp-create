@@ -6,7 +6,7 @@ import {
   updateIndexHtml,
   updatePackageJson,
   updatePackageLock,
-  updateReadme,
+  buildReadme,
   validatePackageName,
   validateProjectName,
 } from '../utils/project.js';
@@ -68,12 +68,35 @@ test('updatePackageLock updates the root name and version only', () => {
   assert.equal(result.packages[''].version, '0.1.0');
 });
 
-test('updateReadme replaces the template heading', () => {
-  const result = updateReadme('# Vuesp\n\nVue + ESP = Vuesp\n', { name: 'vuesp.bms-12v' });
+test('buildReadme creates a project-specific README', () => {
+  const result = buildReadme({
+    name: 'vuesp.bms-12v',
+    summary: 'Battery project',
+    description: '## Battery management',
+    board: 'esp32-c3-devkitm-1',
+  });
 
   assert.match(result, /^# vuesp\.bms-12v\n/);
-  assert.match(result, /Generated from the \[Vuesp\]/);
-  assert.match(result, /Vue \+ ESP = Vuesp/);
+  assert.match(result, /\[Vuesp\]\(https:\/\/github\.com\/bondrogeen\/vuesp\)/);
+  assert.match(result, /## Battery management/);
+  assert.match(result, /pio run -e esp32-c3-devkitm-1/);
+  assert.match(result, /vuesp-create/);
+  assert.doesNotMatch(result, /Vue \+ ESP = Vuesp/);
+  assert.doesNotMatch(result, /Acknowledgments/);
+});
+
+test('buildReadme includes the preset note', () => {
+  const result = buildReadme({
+    name: 'vuesp.led',
+    summary: 'LED project',
+    description: '',
+    board: 'esp32',
+    presetLabel: 'LED · lighting',
+    presetNote: 'GPIO 12/13 are buttons.',
+  });
+
+  assert.match(result, /\*\*Preset:\*\* LED · lighting/);
+  assert.match(result, /GPIO 12\/13 are buttons/);
 });
 
 test('updateIndexHtml replaces the title and adds a description', () => {

@@ -55,7 +55,9 @@ The command also:
 - sets `name` in `vue/package.json`;
 - resets the project version to `0.1.0`;
 - sets `firmware_version` and `device_name` in `platformio.ini`;
-- replaces the README heading and the browser tab title;
+- replaces the README with a clean project template that keeps a link to Vuesp;
+- updates the browser tab title and description;
+- removes Vuesp-specific `docs/`, `DEVELOPMENT.md`, `CONTRIBUTING.md` and `SECURITY.md`;
 - removes template repository links from `vue/package.json`;
 - writes `.vuesp.json` with the name, summary, description, platforms and tags;
 - adds starter dashboard cards when a preset is selected.

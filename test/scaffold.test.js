@@ -42,6 +42,11 @@ test('scaffold applies the board, manifest and preset', async () => {
     await writeFile(join(root, 'platformio.ini'), platformio);
     await writeFile(join(root, 'README.md'), '# Vuesp\n\nTemplate for your arduino projects with a web interface.\n\n## License\n\nMIT\n');
     await writeFile(join(root, 'AGENTS.md'), 'internal\n');
+    await writeFile(join(root, 'DEVELOPMENT.md'), 'Vuesp development guide\n');
+    await writeFile(join(root, 'CONTRIBUTING.md'), 'Vuesp contributing guide\n');
+    await writeFile(join(root, 'SECURITY.md'), 'Vuesp security policy\n');
+    await mkdir(join(root, 'docs/architecture'), { recursive: true });
+    await writeFile(join(root, 'docs/architecture/prompt.md'), 'Vuesp architecture\n');
     await writeFile(join(root, 'vue/.env'), 'VITE_IP=192.168.1.2\n');
     await writeFile(
       join(root, 'vue/package.json'),
@@ -97,9 +102,16 @@ test('scaffold applies the board, manifest and preset', async () => {
     assert.equal(dashboard.find((card) => card.id === 'ports.12').name, 'Light 1');
     assert.deepEqual(defaults.dashboard, dashboard);
     assert.match(readme, /^# vuesp\.led/m);
-    assert.match(readme, /## Preset: LED/);
+    assert.match(readme, /\[Vuesp\]\(https:\/\/github\.com\/bondrogeen\/vuesp\)/);
+    assert.match(readme, /\*\*Preset:\*\* LED/);
+    assert.match(readme, /pio run -e esp32/);
+    assert.doesNotMatch(readme, /Vuesp architecture/);
     assert.equal(await exists(join(root, 'vue/.env')), false);
     assert.equal(await exists(join(root, 'AGENTS.md')), false);
+    assert.equal(await exists(join(root, 'docs')), false);
+    assert.equal(await exists(join(root, 'DEVELOPMENT.md')), false);
+    assert.equal(await exists(join(root, 'CONTRIBUTING.md')), false);
+    assert.equal(await exists(join(root, 'SECURITY.md')), false);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

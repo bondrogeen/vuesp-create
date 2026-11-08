@@ -98,23 +98,87 @@ export const updatePackageLock = (text, { name, version = '0.1.0' }) => {
 };
 
 /**
- * Replaces the template heading with the project name and a short note.
+ * Builds a clean project README for a generated project.
  *
- * @param {string} text
- * @param {{ name: string }} options
+ * The Vuesp README is intentionally not copied: only a link to the parent
+ * project is kept, the rest is a template for the current device.
+ *
+ * @param {{
+ *   name: string,
+ *   summary?: string,
+ *   description?: string,
+ *   board: string,
+ *   presetLabel?: string,
+ *   presetNote?: string,
+ * }} options
  * @returns {string}
  */
-export const updateReadme = (text, { name }) => {
-  const header = [
+export const buildReadme = ({ name, summary, description, board, presetLabel, presetNote }) => {
+  const about = (description || summary || '').trim() || 'Describe your device and its features here.';
+  const lines = [
     `# ${name}`,
     '',
-    '> Generated from the [Vuesp](https://github.com/bondrogeen/vuesp) template with [vuesp-create](https://github.com/bondrogeen/vuesp-create).',
+    '> A project built with [Vuesp](https://github.com/bondrogeen/vuesp) — a local web interface for ESP32, ESP32-C3 and ESP8266.',
     '',
-  ].join('\n');
+    '## About',
+    '',
+    about,
+    '',
+  ];
 
-  return text
-    .replace(/^# .*\n/, header)
-    .replace('Template for your arduino projects with a web interface.', 'A project built with Vuesp — describe your device and its features here.');
+  if (presetNote) {
+    lines.push(`> **Preset:** ${presetLabel} — ${presetNote}`, '');
+  }
+
+  lines.push(
+    '## Quick start',
+    '',
+    '### Web interface',
+    '',
+    '```bash',
+    'cd vue',
+    'npm install',
+    'cp .env.example .env',
+    'npm run dev',
+    '```',
+    '',
+    'Set `VITE_IP` in `vue/.env` to the device IP and open <http://localhost:3000>.',
+    '',
+    '### Firmware',
+    '',
+    '```bash',
+    `pio run -e ${board}`,
+    '```',
+    '',
+    '## Project structure',
+    '',
+    '```text',
+    'src/              # firmware sources',
+    'vue/              # Vue 3 + Vite web interface',
+    'platformio.ini    # PlatformIO configuration',
+    '.vuesp.json       # project manifest for the Vuesp catalog',
+    '```',
+    '',
+    '## Publish to the Vuesp catalog',
+    '',
+    '1. Push the project to a public GitHub repository.',
+    '2. Open <https://lk.vuesp.ru/projects/new>, paste the repository URL and press **Заполнить**.',
+    '3. Submit the project for moderation.',
+    '',
+    '## Links',
+    '',
+    '- [Vuesp](https://github.com/bondrogeen/vuesp) — the parent project',
+    '- [vuesp-create](https://github.com/bondrogeen/vuesp-create) — project generator',
+    '- [Documentation](https://docs.vuesp.ru)',
+    '- [Project catalog](https://vuesp.ru/projects)',
+    '',
+    '## License',
+    '',
+    'MIT',
+    ''
+  );
+
+  return lines.join('\n');
 };
 
 /**
