@@ -134,6 +134,8 @@ export const updatePlatformio = (text, { board, name, version = '{0, 1, 0}' }) =
   const deviceName = name.slice(0, 20).replace(/[-._]+$/, '') || name.slice(0, 20);
   let result = selectBoard(text, board);
   result = setCommonValue(result, 'firmware_version', `'${version}'`);
-  result = setCommonValue(result, 'device_name', JSON.stringify(deviceName));
+  // The INI parser strips one level of quotes, so wrap the JSON string in
+  // single quotes to keep "name" quoted in the -D build flag.
+  result = setCommonValue(result, 'device_name', `'${JSON.stringify(deviceName)}'`);
   return result;
 };

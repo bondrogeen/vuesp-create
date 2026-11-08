@@ -78,10 +78,10 @@ test('updatePlatformio applies board, version and device name', () => {
   assert.match(result, /\[env:esp32-c3-devkitm-1\]/);
   assert.doesNotMatch(result, /\[env:esp8266\]/);
   assert.match(result, /firmware_version = '\{0, 1, 0\}'/);
-  assert.match(result, /device_name = "vuesp.bms-12v"/);
+  assert.match(result, /device_name = '"vuesp.bms-12v"'/);
 });
 
 test('updatePlatformio truncates a long device name to 20 characters', () => {
   const result = updatePlatformio(platformio, { board: 'esp32', name: 'a-very-long-project-name-12345' });
-  assert.match(result, /device_name = "a-very-long-project"/);
+  assert.match(result, /device_name = '"a-very-long-project"'/);
 });
