@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vuesp.ru/schema/vuesp-project.json",
+  "title": "Vuesp project manifest",
+  "description": "Metadata for a project created with vuesp-create. The Vuesp catalog uses it to prefill the project card.",
+  "type": "object",
+  "required": ["name", "summary"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 120
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 20000
+    },
+    "platforms": {
+      "type": "array",
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "maxLength": 64
+      }
+    },
+    "tags": {
+      "type": "array",
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "maxLength": 32
+      }
+    },
+    "preset": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "createdWith": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "template": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "ref": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "commit": {
+          "type": "string",
+          "maxLength": 64
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

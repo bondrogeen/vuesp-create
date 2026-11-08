@@ -1,0 +1,55 @@
+{
+  "name": "vuesp-create",
+  "version": "1.0.0",
+  "description": "Create a new Vuesp project from the official template",
+  "type": "module",
+  "main": "./utils/index.js",
+  "exports": {
+    ".": "./utils/index.js"
+  },
+  "bin": {
+    "vuesp-create": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "utils",
+    "schema",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "start": "node ./bin/cli.js",
+    "test": "node --test",
+    "prepublishOnly": "npm test"
+  },
+  "keywords": [
+    "vuesp",
+    "vue",
+    "esp",
+    "esp32",
+    "esp8266",
+    "starter",
+    "template",
+    "cli",
+    "scaffold"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bondrogeen/vuesp-create.git"
+  },
+  "homepage": "https://vuesp.ru",
+  "bugs": {
+    "url": "https://github.com/bondrogeen/vuesp-create/issues"
+  },
+  "author": "bondrogeen",
+  "license": "MIT",
+  "dependencies": {
+    "@inquirer/prompts": "^8.7.5",
+    "commander": "^15.1.0",
+    "giget": "^3.3.1",
+    "picocolors": "^1.1.1"
+  }
+}

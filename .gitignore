@@ -1,0 +1,11 @@
+.pio
+.vscode
+node_modules
+/build
+/firmware
+/data/www
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
