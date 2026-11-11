@@ -74,6 +74,7 @@ test('syncProject applies safe changes and preserves conflicting local edits', a
       tags: [],
       template: { source: upstream, commit: base },
     };
+    await writeFile(join(project, '.vuesp.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 
     const plan = await syncProject({ root: project, manifest });
     assert.deepEqual(
@@ -90,8 +91,14 @@ test('syncProject applies safe changes and preserves conflicting local edits', a
     assert.equal(await readFile(join(project, 'vue/src/b.txt'), 'utf8'), 'local\n');
     assert.equal(await readFile(join(project, 'vue/src/c.txt'), 'utf8'), 'c2\n');
 
+    // A conflict must keep the old base so the next sync reports it again.
     const saved = JSON.parse(await readFile(join(project, '.vuesp.json'), 'utf8'));
-    assert.equal(saved.template.commit, target);
+    assert.equal(saved.template.commit, base);
+
+    await syncProject({ root: project, manifest, apply: true, force: true });
+    const forced = JSON.parse(await readFile(join(project, '.vuesp.json'), 'utf8'));
+    assert.equal(forced.template.commit, target);
+    assert.equal(await readFile(join(project, 'vue/src/b.txt'), 'utf8'), 'b2\n');
   } finally {
     await rm(root, { recursive: true, force: true });
   }

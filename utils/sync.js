@@ -166,7 +166,9 @@ export const syncProject = async ({
         }
       }
 
-      if (manifest) {
+      // Keep the old base while conflicts are unresolved, otherwise the next
+      // sync would hide them. `--force` resolves them by taking upstream.
+      if (manifest && (force || plan.summary.conflict === 0)) {
         const next = {
           ...manifest,
           template: {
