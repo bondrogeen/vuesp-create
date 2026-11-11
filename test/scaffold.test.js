@@ -86,6 +86,7 @@ test('scaffold applies the board, manifest and preset', async () => {
     const defaults = JSON.parse(await readFile(join(root, 'vue/public/default.json'), 'utf8'));
     const readme = await readFile(join(root, 'README.md'), 'utf8');
     const docs = await readFile(join(root, 'DOCS.md'), 'utf8');
+    const rootPackage = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
 
     assert.deepEqual(result.boards, ['esp8266', 'esp32']);
     assert.equal(pkg.name, 'vuesp.led');
@@ -96,6 +97,9 @@ test('scaffold applies the board, manifest and preset', async () => {
     assert.equal(manifest.preset, 'led');
     assert.deepEqual(manifest.platforms, ['ESP32']);
     assert.equal(manifest.template.commit, 'abc');
+    assert.equal(rootPackage.name, 'vuesp.led');
+    assert.equal(rootPackage.scripts.sync, 'npx -y vuesp-create@latest sync . --apply');
+    assert.equal(rootPackage.scripts['sync:check'], 'npx -y vuesp-create@latest sync .');
     assert.deepEqual(
       dashboard.map((card) => card.id),
       ['device.now', 'ports.12', 'ports.13', 'ports.14']

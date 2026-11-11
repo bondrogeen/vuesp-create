@@ -130,6 +130,15 @@ export const buildReadme = ({ name, summary, description }) => {
     '- [Vuesp documentation](https://docs.vuesp.ru)',
     '- [vuesp-create](https://github.com/bondrogeen/vuesp-create)',
     '',
+    '## Template updates',
+    '',
+    '```bash',
+    'npm run sync',
+    '```',
+    '',
+    '`npm run sync` compares the project with the parent Vuesp template and applies safe changes.',
+    'Use `npm run sync:check` for a dry run and `npm run sync -- --force` to overwrite conflicting files.',
+    '',
   ].join('\n');
 };
 

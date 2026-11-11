@@ -57,6 +57,31 @@ export const scaffold = async (
     // The template does not have to ship a lockfile.
   }
 
+  const rootPackagePath = join(dir, 'package.json');
+  let rootPackage = {};
+  try {
+    rootPackage = JSON.parse(await read(rootPackagePath));
+  } catch {
+    rootPackage = {};
+  }
+  await write(
+    rootPackagePath,
+    `${JSON.stringify(
+      {
+        ...rootPackage,
+        name: packageName,
+        private: true,
+        scripts: {
+          ...(rootPackage.scripts ?? {}),
+          sync: 'npx -y vuesp-create@latest sync . --apply',
+          'sync:check': 'npx -y vuesp-create@latest sync .',
+        },
+      },
+      null,
+      2
+    )}\n`
+  );
+
   const readmePath = join(dir, 'README.md');
   await write(
     readmePath,

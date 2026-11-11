@@ -13,6 +13,7 @@ import {
   CARD_TYPES,
   addCard,
   checkProjectUpdates,
+  cloneFork,
   createCard,
   createInfoCard,
   createPortCard,
@@ -29,6 +30,7 @@ import {
   run,
   runCapture,
   scaffold,
+  syncProject,
   validatePackageName,
   validateProjectName,
 } from '../utils/index.js';
@@ -197,11 +199,12 @@ const download = async ({ source, ref, dir }) => {
 
 const templateMetadata = async ({ source, ref }) => {
   const github = githubSource(source);
-  const templateRef = ref || github?.ref || (isLocalSource(source) ? 'local' : undefined);
+  const local = isLocalSource(source);
+  const templateRef = ref || github?.ref;
   let commit = null;
 
   try {
-    commit = isLocalSource(source)
+    commit = local
       ? localGitCommit(resolve(normalizeLocalSource(source)))
       : await latestTemplateCommit({ source, ref });
   } catch {
@@ -209,7 +212,7 @@ const templateMetadata = async ({ source, ref }) => {
   }
 
   return {
-    source: isLocalSource(source) ? 'local' : source,
+    source: local ? resolve(normalizeLocalSource(source)) : source,
     ...(templateRef ? { ref: templateRef } : {}),
     ...(commit ? { commit } : {}),
   };
@@ -259,6 +262,12 @@ const askGit = async (options) => {
   if (options.git !== undefined) return options.git;
   if (!interactive(options)) return true;
   return confirm({ message: 'Initialize a git repository?', default: true });
+};
+
+const askFork = async (options) => {
+  if (options.fork !== undefined) return options.fork;
+  if (!interactive(options)) return true;
+  return confirm({ message: 'Create as a fork with upstream git history?', default: true });
 };
 
 const askGithub = async (options) => {
@@ -457,6 +466,8 @@ const main = async () => {
     .option('--no-install', 'skip dependency installation')
     .option('--git', 'initialize a git repository')
     .option('--no-git', 'skip git initialization')
+    .option('--fork', 'clone the template as a history-preserving fork with an upstream remote (default)')
+    .option('--no-fork', 'create an independent copy without upstream git history')
     .option('-g, --github', 'create a GitHub repository with gh')
     .option('--private', 'create a private GitHub repository (not listed in the catalog)')
     .option('--name <name>', 'npm package name in vue/package.json')
@@ -500,7 +511,15 @@ const main = async () => {
       const pm = options.pm ?? detectPackageManager();
       const installDeps = await askInstall(options);
       const createGithub = await askGithub(options);
-      const initGit = createGithub ? true : await askGit(options);
+      const fork = await askFork(options);
+      const initGit = createGithub || fork ? true : await askGit(options);
+
+      if (fork && !hasCommand('git')) {
+        throw new Error('Fork mode is the default and requires git. Install git or pass --no-fork.');
+      }
+      if (fork && options.git === false) {
+        throw new Error('Fork mode requires git history. Pass --no-fork to create an independent copy.');
+      }
 
       console.log(logo);
       step(`Template: ${pc.bold(source)}${options.ref ? pc.dim(`#${options.ref}`) : ''}`);
@@ -510,9 +529,11 @@ const main = async () => {
       step(`Manager:  ${pc.bold(pm)}`);
       console.log('');
 
-      step('Downloading template…');
-      const downloaded = await download({ source, ref: options.ref, dir: target });
-      ok(`Template downloaded to ${pc.bold(name)}`);
+      step(fork ? 'Cloning template with upstream history…' : 'Downloading template…');
+      const downloaded = fork
+        ? await cloneFork({ source, ref: options.ref, dir: target })
+        : await download({ source, ref: options.ref, dir: target });
+      ok(fork ? `Template cloned to ${pc.bold(name)}` : `Template downloaded to ${pc.bold(name)}`);
 
       step('Configuring project…');
       const template = await templateMetadata({ source, ref: options.ref });
@@ -528,12 +549,16 @@ const main = async () => {
       ok('platformio.ini, package.json, README and .vuesp.json updated');
 
       if (initGit) {
-        step('Initializing git repository…');
-        if (hasCommand('git')) {
-          initRepository(target);
-          ok('Git repository initialized');
+        if (fork) {
+          ok('Git history preserved; upstream remote is configured');
         } else {
-          warn('"git" is not available, skipping git initialization');
+          step('Initializing git repository…');
+          if (hasCommand('git')) {
+            initRepository(target);
+            ok('Git repository initialized');
+          } else {
+            warn('"git" is not available, skipping git initialization');
+          }
         }
       }
 
@@ -563,6 +588,9 @@ const main = async () => {
       console.log('');
       console.log(pc.dim('Open http://localhost:3000 and edit src/ for the firmware.'));
       console.log(pc.dim(`Manifest: .vuesp.json · boards: ${result.boards.length} · preset: ${presetName || 'none'}`));
+      if (fork) {
+        console.log(pc.dim('Fork mode: update with "git fetch upstream && git merge upstream/master".'));
+      }
       if (githubUrl) {
         console.log(pc.dim(`GitHub: ${githubUrl}`));
       } else {
@@ -617,6 +645,59 @@ const main = async () => {
       await addCard(root, card);
       ok(`Sensor card "${card.id}" added to ${pc.bold(relative(process.cwd(), root) || '.')}`);
       console.log(pc.dim('Restart the dev server or reload the page to see the card.'));
+      console.log('');
+    });
+
+  program
+    .command('sync')
+    .description('Compare the project with its upstream template')
+    .argument('[dir]', 'project directory', '.')
+    .option('--ref <ref>', 'upstream branch, tag or commit')
+    .option('--from <commit>', 'base commit to compare from')
+    .option('--upstream <source>', 'override the upstream repository')
+    .option('--apply', 'apply non-conflicting changes')
+    .option('--force', 'apply upstream files even when local changes conflict')
+    .option('--json', 'print machine-readable JSON')
+    .action(async (dir, options) => {
+      const root = findProjectRoot(resolve(dir));
+      const manifest = await readManifest(root);
+      const result = await syncProject({
+        root,
+        manifest,
+        upstream: options.upstream,
+        ref: options.ref,
+        from: options.from,
+        apply: Boolean(options.apply),
+        force: Boolean(options.force),
+      });
+
+      if (options.json) {
+        console.log(JSON.stringify({ dir: root, ...result }, null, 2));
+        return;
+      }
+
+      console.log(logo);
+      console.log(`${pc.dim('upstream:')} ${result.upstream}`);
+      console.log(`${pc.dim('base:')} ${result.base.slice(0, 7)}  ${pc.dim('target:')} ${result.target.slice(0, 7)} ${pc.dim(`(${result.ref})`)}`);
+      console.log(
+        `${pc.green(`+${result.summary.add}`)} add  ` +
+          `${pc.cyan(`~${result.summary.update}`)} update  ` +
+          `${pc.yellow(`-${result.summary.delete}`)} delete  ` +
+          `${pc.red(`!${result.summary.conflict}`)} conflict`
+      );
+
+      for (const file of result.files) {
+        const color =
+          file.action === 'add' ? pc.green : file.action === 'update' ? pc.cyan : file.action === 'delete' ? pc.yellow : pc.red;
+        const mark = file.action === 'add' ? '+' : file.action === 'update' ? '~' : file.action === 'delete' ? '-' : '!';
+        console.log(`  ${color(mark)} ${file.path} ${pc.dim(file.action)}`);
+      }
+
+      if (!result.files.length) console.log(pc.green('✔ already up to date'));
+      if (result.summary.conflict) console.log(pc.yellow('Conflicts were left untouched. Resolve them manually.'));
+      if (!options.apply && result.files.some((file) => file.action !== 'conflict')) {
+        console.log(pc.dim('Run with --apply to update non-conflicting files.'));
+      }
       console.log('');
     });
 

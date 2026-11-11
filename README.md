@@ -2,7 +2,7 @@
 
 Create a new [Vuesp](https://github.com/bondrogeen/vuesp) project from the official template in one command.
 
-`vuesp-create` downloads the current Vuesp template, keeps only the selected board, sets the project name, optionally installs dependencies, initializes a git repository and can create the GitHub repository for you.
+`vuesp-create` clones the current Vuesp template as a git fork by default, keeps only the selected board, sets the project name, optionally installs dependencies, initializes a git repository and can create the GitHub repository for you.
 
 It also writes a `.vuesp.json` manifest so the Vuesp catalog can prefill the project card.
 
@@ -35,6 +35,81 @@ With a starter preset and an automatic GitHub repository:
 
 ```bash
 npx vuesp-create@latest vuesp.bms-12v --preset bms --github --yes
+```
+
+## Fork mode
+
+By default a project is cloned with the template's full git history and the parent repository is configured as `upstream`:
+
+```bash
+npx vuesp-create@latest vuesp.my-device --yes
+```
+
+After creation the project can receive template updates with normal git commands:
+
+```bash
+git fetch upstream
+git merge upstream/master
+```
+
+or rebase the device branch on top of upstream:
+
+```bash
+git fetch upstream
+git rebase upstream/master
+```
+
+Fork mode requires `git` and a git-based template source. With `--github` the CLI creates a repository with the shared history, but not a GitHub fork-network entry. If you need the GitHub fork itself, create it with `gh repo fork` and add the resulting repository as `origin`.
+
+Use `--no-fork` to create an independent copy without upstream history.
+
+Fork mode requires `git`. If it is not installed, pass `--no-fork` or install git first.
+
+## Checking template changes
+
+Generated projects include a root `package.json` with two shortcuts:
+
+```bash
+npm run sync:check   # compare only
+npm run sync         # compare and apply safe changes
+```
+
+The same check is available anywhere through the CLI:
+
+```bash
+npx vuesp-create@latest sync
+```
+
+The command compares three states:
+
+- the recorded template commit from `.vuesp.json`;
+- the local project files;
+- the current upstream template.
+
+It reports safe updates, new files, deletions and conflicts. To apply only the safe changes:
+
+```bash
+npx vuesp-create@latest sync --apply
+```
+
+Conflicting files are left untouched. Use `--force` to overwrite them with the upstream version.
+
+By default only the shared UI and scripts are compared:
+
+```text
+vue/src
+vue/scripts
+vue/package.json
+vue/vite.config.ts
+```
+
+Override the list in `.vuesp-sync.json`:
+
+```json
+{
+  "upstream": "github:bondrogeen/vuesp",
+  "paths": ["vue/src", "vue/scripts", "vue/package.json", "vue/vite.config.ts"]
+}
 ```
 
 ## What you get
@@ -186,6 +261,8 @@ vuesp-create [project-name] [options]
       --install             Install dependencies
       --no-install          Skip dependency installation
       --git                 Initialize a git repository
+      --fork                Keep template git history and add an upstream remote (default)
+      --no-fork             Create an independent copy without upstream history
       --no-git              Skip git initialization
   -g, --github              Create a GitHub repository with gh
       --private             Create a private GitHub repository
