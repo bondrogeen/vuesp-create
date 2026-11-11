@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { access, cp, readFile } from 'node:fs/promises';
+import { access, cp, readFile, writeFile } from 'node:fs/promises';
 import { constants, existsSync } from 'node:fs';
 import { join, relative, resolve, sep } from 'node:path';
 
@@ -326,6 +326,13 @@ const createGithubRepository = async ({ dir, name, isPrivate }) => {
   run('gh', ['repo', 'create', name, isPrivate ? '--private' : '--public', '--source', '.', '--remote', 'origin', '--push'], { cwd: dir });
 
   const url = runCapture('gh', ['repo', 'view', '--json', 'url', '--jq', '.url'], { cwd: dir });
+
+  const packagePath = join(dir, 'vue/package.json');
+  const packageJson = JSON.parse(await readFile(packagePath, 'utf8'));
+  packageJson.homepage = 'https://vuesp.ru';
+  packageJson.repository = { type: 'git', url };
+  await writeFile(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
+
   ok(`GitHub repository: ${url}`);
   return url;
 };

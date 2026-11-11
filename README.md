@@ -65,6 +65,15 @@ Use `--no-fork` to create an independent copy without upstream history.
 
 Fork mode requires `git`. If it is not installed, pass `--no-fork` or install git first.
 
+### Project links
+
+The web UI shows two buttons in the sidebar:
+
+- **Homepage** always opens `https://vuesp.ru`.
+- **Github** opens the project repository from `repository.url` in `vue/package.json`.
+
+`vuesp-create` does not copy the template repository URL into a new project. The GitHub button is filled from `repository.url` when the project has one, otherwise from the `origin` remote of the current git repository at build time. This means the link appears automatically after the project is pushed to its own GitHub repository.
+
 ## Checking template changes
 
 Generated projects include a root `package.json` with two shortcuts:
@@ -133,7 +142,7 @@ The command also:
 - replaces the README with a clean project template that keeps a link to Vuesp;
 - updates the browser tab title and description;
 - removes Vuesp-specific `docs/`, `DEVELOPMENT.md`, `CONTRIBUTING.md` and `SECURITY.md`;
-- removes template repository links from `vue/package.json`;
+- removes the template repository link from `vue/package.json` and sets `homepage` to `https://vuesp.ru`;
 - writes `.vuesp.json` with the name, summary, description, platforms and tags;
 - adds starter dashboard cards when a preset is selected.
 

@@ -68,8 +68,8 @@ export const updatePackageJson = (text, { name, description }) => {
 
   delete json.author;
   delete json.repository;
-  delete json.homepage;
   delete json.bugs;
+  json.homepage = 'https://vuesp.ru';
 
   return `${JSON.stringify(json, null, 2)}\n`;
 };

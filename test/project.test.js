@@ -53,7 +53,7 @@ test('updatePackageJson sets project metadata and drops template links', () => {
   assert.equal(result.description, 'My project');
   assert.equal(result.private, true);
   assert.equal(result.repository, undefined);
-  assert.equal(result.homepage, undefined);
+  assert.equal(result.homepage, 'https://vuesp.ru');
   assert.equal(result.bugs, undefined);
   assert.equal(result.author, undefined);
   assert.equal(result.license, 'MIT');
